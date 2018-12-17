@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "mailbox.h": "c",
+        "screen.h": "c",
+        "test.h": "c",
+        "type.h": "c"
+    }
+}
