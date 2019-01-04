@@ -198,31 +198,30 @@ void phy_regs_task4()
         recv_flag[i] = 0;
     }
 
-    uint32_t cnt = 0;
+    /*uint32_t cnt = 0;
     uint32_t *Recv_desc;
-    Recv_desc = (uint32_t *)(test_mac.rd + (PNUM - 1) * 16);
+    Recv_desc = (uint32_t *)(test_mac.rd + (PNUM - 1) * 16);*/
     int j=0;
     //printf("(test_mac.rd 0x%x ,Recv_desc=0x%x,REDS0 0X%x\n", test_mac.rd, Recv_desc, *(Recv_desc));
     int time_start = time_elapsed;
     /*while(mac_store_current < mac_store_start + 0x004000000x00800000)*/
-    for(j=1;j<128;j++)
+    ret = sys_net_recv(test_mac.rd, test_mac.rd_phy, test_mac.daddr);
+    while(mac_counter<64)
     {
-        ret = sys_net_recv(test_mac.rd, test_mac.rd_phy, test_mac.daddr);
-        if (((*Recv_desc) & 0x80000000) == 0x80000000)
+        if ((rd_desc[127].tdes0 & 0x80000000) == 0x80000000)
         {
             //sys_move_cursor(1, print_location);
-            //printf("> [RECV TASK] waiting receive package(%d).\n",j);
+            //printf("> [RECV TASK] waiting receive package(%d).  ",j);
             sys_wait_recv_package();
         }
         //printf("> [RECV TASK] the rest is %x(%d).\n",mac_store_start + 0x00200000 - mac_store_current,j);
         /*for(i=0;i<64;i++)
             memcpy(mac_store_current + 1024*i,dma_buffer_start_rd + 1024*i,1024);*/
-        mac_store_current += 1024*64;
-        rd_desc_fill(mac_store_current);
-        //j++;
+        
+        //printf("done (%d).\n",j);
     }
     int time_end = time_elapsed;
-    printf("> [RECV TASK] total: %dKB, time: %d irq_time.\n",j*64,time_end -time_start);
+    printf("> [RECV TASK] total: %dKB, time: %d irq_time.\n",mac_counter*128,time_end-time_start);
     my_check_recv(&test_mac);
 
     sys_exit();

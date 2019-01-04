@@ -194,6 +194,7 @@ void init_mac_and_dma(void)
 	target = &sd_desc[0];
 	reg_write_32(DMA_BASE_ADDR+DmaTxBaseAddr,target & 0x1fffffff);
 	dma_buffer_clear();
+	
 	irq_enable(LS1C_MAC_IRQ);
 }
 

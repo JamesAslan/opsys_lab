@@ -1,6 +1,6 @@
 #include "mac.h"
 
-extern struct desc rd_desc[64];
+extern struct desc rd_desc[128];
 extern struct desc sd_desc[64];
 
 void rd_desc_init(void);
@@ -19,3 +19,5 @@ void check_mac(void);
 
 void my_check_recv(mac_t *test_mac);
 void rd_desc_fill(int addr);
+
+extern int mac_counter;

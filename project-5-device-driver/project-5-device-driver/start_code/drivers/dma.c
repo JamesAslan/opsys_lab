@@ -1,16 +1,19 @@
 #include "dma.h"
 #include "queue.h"
 
-#define DMA_RD_START 0x80400000
+#define DMA_RD_START 0x81400000
+//0x80400000
 
-struct desc rd_desc[64];
+struct desc rd_desc[128];
 struct desc sd_desc[64];
 
 int dma_buffer_start_rd = DMA_RD_START;
-int dma_buffer_start_sd = 0x80e00000;
+int dma_buffer_start_sd = 0x80400000;
 
 int mac_store_start = DMA_RD_START;
 int mac_store_current = DMA_RD_START;
+
+int mac_counter=0;
 
 queue_t mac_wait;
 
@@ -18,7 +21,7 @@ void rd_desc_init(void)
 {
     int i;
     int target;
-    for(i=0 ; i< 63; i++)
+    for(i=0 ; i< 127; i++)
     {
         rd_desc[i].tdes0 = 0;
         rd_desc[i].tdes1 = 0x81000400;
@@ -29,7 +32,7 @@ void rd_desc_init(void)
     }
     rd_desc[i].tdes0 = 0;
     rd_desc[i].tdes1 = 0x03000400;
-    target = dma_buffer_start_rd + 1024*63;
+    target = dma_buffer_start_rd + 1024*127;
     rd_desc[i].tdes2 = target & 0x1fffffff;
     target = &rd_desc;
     rd_desc[i].tdes3 = target & 0x1fffffff;
@@ -39,12 +42,12 @@ void rd_desc_fill(int addr)
 {
     int i;
     int target;
-    for(i=0 ; i< 63; i++)
+    for(i=0 ; i< 127; i++)
     {
         target = addr + 1024*i;
         rd_desc[i].tdes2 = target & 0x1fffffff;
     }
-    target = addr + 1024*63;
+    target = addr + 1024*127;
     rd_desc[i].tdes2 = target & 0x1fffffff;
 }
 
@@ -83,7 +86,7 @@ void check_mac(void)
 {
     if(queue_is_empty(&mac_wait) == 0)
     {
-        if((rd_desc[63].tdes0 & 0x80000000) == 0x00000000)
+        if((rd_desc[127].tdes0 & 0x80000000) == 0x00000000)
         {
             //my_printk("unblock!");
             do_unblock_one(&mac_wait);

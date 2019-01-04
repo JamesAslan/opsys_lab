@@ -241,6 +241,10 @@ void irq_mac(void)
     //my_printk("irq_mac");
     my_clear_interrupt(1);
     check_mac();
+    mac_store_current += 1024*128;
+    rd_desc_fill(mac_store_current);
+    do_net_recv(0,0,0);
+    mac_counter ++;
 }
 
 void irq_enable(int IRQn)
@@ -321,13 +325,13 @@ uint32_t do_net_recv(uint32_t rd, uint32_t rd_phy, uint32_t daddr)
     //dma_buffer_clear();
     int i;
 
-    for(i=0;i<64;i++)
+    for(i=0;i<128;i++)
     {
         rd_desc[i].tdes0 = /*rd_desc[i].tdes0 |*/ 0x80000000;
         //my_printk("set! ");
     }
 
-    for(i=0;i<64;i++)
+    for(i=0;i<128;i++)
     {
         reg_write_32(DMA_BASE_ADDR + DmaRxPollDemand, 1);
     }
@@ -415,7 +419,7 @@ void do_init_mac(void)
 
 void do_wait_recv_package(void)
 {
-    if((rd_desc[63].tdes0 & 0x80000000) == 0x80000000)
+    if((rd_desc[127].tdes0 & 0x80000000) == 0x80000000)
     {
         //my_printk("block!");
         do_block(&mac_wait);
